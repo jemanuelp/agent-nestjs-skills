@@ -10,13 +10,13 @@ Install this skill using [skills](https://github.com/vercel-labs/skills):
 
 ```bash
 # GitHub shorthand
-npx skills add Kadajett/agent-nestjs-skills
+npx skills add jemanuelp/agent-nestjs-skills
 
 # Install globally (available across all projects)
-npx skills add Kadajett/agent-nestjs-skills --global
+npx skills add jemanuelp/agent-nestjs-skills --global
 
 # Install for specific agents
-npx skills add Kadajett/agent-nestjs-skills -a claude-code -a cursor
+npx skills add jemanuelp/agent-nestjs-skills -a claude-code -a cursor
 ```
 
 ### Supported Agents
@@ -138,7 +138,7 @@ When adding or modifying rules:
 
 ## Documentation Website
 
-The documentation website source code lives on the [`docs` branch](https://github.com/Kadajett/agent-nestjs-skills/tree/docs/website). This separation keeps the skill installation lightweight while maintaining the full documentation site.
+The documentation website source code lives on the [`docs` branch](https://github.com/jemanuelp/agent-nestjs-skills/tree/docs/website). This separation keeps the skill installation lightweight while maintaining the full documentation site.
 
 To contribute to the website:
 
@@ -160,4 +160,3 @@ These NestJS skills work with:
 
 - [Claude Code](https://claude.ai/code) - Anthropic's official CLI
 - [AdaL](https://sylph.ai/adal) - Self-evolving AI coding agent with MCP support
-
