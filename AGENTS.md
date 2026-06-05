@@ -14,7 +14,7 @@ January 2026
 
 ## Abstract
 
-Comprehensive best practices and architecture guide for NestJS applications, designed for AI agents and LLMs. Contains 40 rules across 10 categories, prioritized by impact from critical (architecture, dependency injection) to incremental (DevOps patterns). Each rule includes detailed explanations, real-world examples comparing incorrect vs. correct implementations, and specific impact metrics to guide automated refactoring and code generation.
+Comprehensive best practices and architecture guide for NestJS applications, designed for AI agents and LLMs. Contains 41 rules across 10 categories, prioritized by impact from critical (architecture, dependency injection) to incremental (DevOps patterns). Each rule includes detailed explanations, real-world examples comparing incorrect vs. correct implementations, and specific impact metrics to guide automated refactoring and code generation.
 
 ---
 
@@ -23,10 +23,11 @@ Comprehensive best practices and architecture guide for NestJS applications, des
 1. [Architecture](#1-architecture) — **CRITICAL**
    - 1.1 [Avoid Circular Dependencies](#11-avoid-circular-dependencies)
    - 1.2 [Organize by Feature Modules](#12-organize-by-feature-modules)
-   - 1.3 [Use Proper Module Sharing Patterns](#13-use-proper-module-sharing-patterns)
-   - 1.4 [Single Responsibility for Services](#14-single-responsibility-for-services)
-   - 1.5 [Use Event-Driven Architecture for Decoupling](#15-use-event-driven-architecture-for-decoupling)
-   - 1.6 [Use Repository Pattern for Data Access](#16-use-repository-pattern-for-data-access)
+   - 1.3 [Keep Types and Interfaces in Types Folders](#13-keep-types-and-interfaces-in-types-folders)
+   - 1.4 [Use Proper Module Sharing Patterns](#14-use-proper-module-sharing-patterns)
+   - 1.5 [Single Responsibility for Services](#15-single-responsibility-for-services)
+   - 1.6 [Use Event-Driven Architecture for Decoupling](#16-use-event-driven-architecture-for-decoupling)
+   - 1.7 [Use Repository Pattern for Data Access](#17-use-repository-pattern-for-data-access)
 2. [Dependency Injection](#2-dependency-injection) — **CRITICAL**
    - 2.1 [Avoid Service Locator Anti-Pattern](#21-avoid-service-locator-anti-pattern)
    - 2.2 [Apply Interface Segregation Principle](#22-apply-interface-segregation-principle)
@@ -235,7 +236,122 @@ Reference: [NestJS Modules](https://docs.nestjs.com/modules)
 
 ---
 
-### 1.3 Use Proper Module Sharing Patterns
+### 1.3 Keep Types and Interfaces in Types Folders
+
+**Impact: MEDIUM-HIGH** — Improves maintainability by keeping services and controllers focused on behavior
+
+When a `type` or `interface` is needed, define it in a dedicated file inside the feature module's `types/` folder. Do not define reusable or request/response-shaping types inline inside services or controllers. If an existing service or controller contains a `type` or `interface`, move it to the nearest feature-level `types/` folder and import it.
+
+This keeps NestJS services focused on business behavior, controllers focused on HTTP orchestration, and shared contracts easy to find, reuse, and test. Inline types are acceptable only for truly local implementation details that are not exported, not reused, and not part of a controller/service public method contract.
+
+**Incorrect (types and interfaces defined inside services or controllers):**
+
+```typescript
+// users/users.service.ts
+interface FindActiveUsersOptions {
+  includeDeleted?: boolean;
+  limit?: number;
+}
+
+type UserWithOrderCount = User & {
+  orderCount: number;
+};
+
+@Injectable()
+export class UsersService {
+  async findActive(
+    options: FindActiveUsersOptions,
+  ): Promise<UserWithOrderCount[]> {
+    // Business logic mixed with contract definitions
+  }
+}
+
+// users/users.controller.ts
+interface CreateUserResponse {
+  id: string;
+  email: string;
+}
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  async create(@Body() dto: CreateUserDto): Promise<CreateUserResponse> {
+    return this.usersService.create(dto);
+  }
+}
+```
+
+**Correct (types live in the feature module's types folder):**
+
+```typescript
+// users/types/find-active-users-options.type.ts
+export interface FindActiveUsersOptions {
+  includeDeleted?: boolean;
+  limit?: number;
+}
+
+// users/types/user-with-order-count.type.ts
+export type UserWithOrderCount = User & {
+  orderCount: number;
+};
+
+// users/types/create-user-response.type.ts
+export interface CreateUserResponse {
+  id: string;
+  email: string;
+}
+
+// users/users.service.ts
+import { FindActiveUsersOptions } from './types/find-active-users-options.type';
+import { UserWithOrderCount } from './types/user-with-order-count.type';
+
+@Injectable()
+export class UsersService {
+  async findActive(
+    options: FindActiveUsersOptions,
+  ): Promise<UserWithOrderCount[]> {
+    // Service stays focused on business behavior
+  }
+}
+
+// users/users.controller.ts
+import { CreateUserResponse } from './types/create-user-response.type';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  async create(@Body() dto: CreateUserDto): Promise<CreateUserResponse> {
+    return this.usersService.create(dto);
+  }
+}
+```
+
+**Recommended structure:**
+
+```typescript
+src/
+├── users/
+│   ├── dto/
+│   ├── entities/
+│   ├── types/
+│   │   ├── create-user-response.type.ts
+│   │   ├── find-active-users-options.type.ts
+│   │   └── user-with-order-count.type.ts
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+└── orders/
+    ├── types/
+    └── orders.service.ts
+```
+
+Prefer descriptive filenames that match the exported contract. Use `.type.ts` for both `type` aliases and interfaces when the file's purpose is a shared TypeScript contract. Keep DTO classes in `dto/`; reserve `types/` for plain TypeScript `type` and `interface` definitions.
+
+Reference: [NestJS Modules](https://docs.nestjs.com/modules)
+
+---
+
+### 1.4 Use Proper Module Sharing Patterns
 
 **Impact: CRITICAL** — Prevents duplicate instances, memory leaks, and state inconsistency
 
@@ -374,7 +490,7 @@ Reference: [NestJS Modules](https://docs.nestjs.com/modules#shared-modules)
 
 ---
 
-### 1.4 Single Responsibility for Services
+### 1.5 Single Responsibility for Services
 
 **Impact: CRITICAL** — "40%+ improvement in testability"
 
@@ -478,7 +594,7 @@ Reference: [NestJS Providers](https://docs.nestjs.com/providers)
 
 ---
 
-### 1.5 Use Event-Driven Architecture for Decoupling
+### 1.6 Use Event-Driven Architecture for Decoupling
 
 **Impact: MEDIUM-HIGH** — Enables async processing and modularity
 
@@ -584,7 +700,7 @@ Reference: [NestJS Events](https://docs.nestjs.com/techniques/events)
 
 ---
 
-### 1.6 Use Repository Pattern for Data Access
+### 1.7 Use Repository Pattern for Data Access
 
 **Impact: HIGH** — Decouples business logic from database
 
@@ -5955,4 +6071,4 @@ Reference: [NestJS Logger](https://docs.nestjs.com/techniques/logger)
 
 ---
 
-*Generated by build-agents.ts on 2026-01-16*
+*Generated by build-agents.ts on 2026-06-05*

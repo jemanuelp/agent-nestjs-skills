@@ -9,7 +9,7 @@ metadata:
 
 # NestJS Best Practices
 
-Comprehensive best practices guide for NestJS applications. Contains 40 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
+Comprehensive best practices guide for NestJS applications. Contains 41 rules across 10 categories, prioritized by impact to guide automated refactoring and code generation.
 
 ## When to Apply
 
@@ -43,6 +43,7 @@ Reference these guidelines when:
 
 - `arch-avoid-circular-deps` - Avoid circular module dependencies
 - `arch-feature-modules` - Organize by feature, not technical layer
+- `arch-keep-types-in-types-folder` - Keep types and interfaces in feature-level `types/` folders
 - `arch-module-sharing` - Proper module exports/imports, avoid duplicate providers
 - `arch-single-responsibility` - Focused services over "god services"
 - `arch-use-repository-pattern` - Abstract database logic for testability
