@@ -124,6 +124,21 @@ Reference: [NestJS Documentation](https://docs.nestjs.com)
 ## Scripts
 
 - `npm run build` (in scripts/) - Compile rules into AGENTS.md
+- `scripts/count-large-files.mjs` - List code files over 200 lines in the target project, sorted by line count
+
+From a project that has this skill installed, run the script from the target project's root:
+
+```bash
+node /path/to/nestjs-best-practices/scripts/count-large-files.mjs
+```
+
+To inspect a specific directory or use a different threshold:
+
+```bash
+node /path/to/nestjs-best-practices/scripts/count-large-files.mjs src 250
+```
+
+Use this before large edits or refactors in the consumer project to identify files that are already oversized and may deserve splitting or focused review.
 
 ## Contributing
 

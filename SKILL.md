@@ -126,6 +126,24 @@ Each rule file contains:
 - Correct code example with explanation
 - Additional context and references
 
+## Maintenance Scripts
+
+Use `scripts/count-large-files.mjs` from this skill to find code files in the current target project that exceed 200 lines. This helps agents spot oversized files before adding more behavior or proposing refactors.
+
+Run it from the target project's root, resolving the script path relative to this skill's installation directory:
+
+```bash
+node /path/to/nestjs-best-practices/scripts/count-large-files.mjs
+```
+
+Optionally pass a target directory and a custom threshold:
+
+```bash
+node /path/to/nestjs-best-practices/scripts/count-large-files.mjs src 250
+```
+
+The script defaults to the current working directory, prints matching files sorted by line count, and excludes generated or dependency folders such as `node_modules`, `dist`, `.next`, and `.git`.
+
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
